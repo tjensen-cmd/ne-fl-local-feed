@@ -1,0 +1,87 @@
+# Sources for the Northeast Florida local news feed.
+#
+# status: active     -> fetch.py pulls this feed daily
+#         link_only   -> this site blocks automated access (see note); not fetched.
+#                        Kept here for documentation, and so a human can still click
+#                        through to the homepage if wanted.
+#
+# county_filter_keywords (optional): if present, an entry from this feed is only kept
+# when its link contains at least one of these keywords. Used for feeds that are
+# shared across multiple local markets.
+
+- name: St. Johns Citizen
+  county: St. Johns
+  feed_url: https://sjcitizen.com/feed/
+  status: active
+
+- name: Historic City News
+  county: St. Johns
+  feed_url: https://historiccity.com/feed/
+  status: active
+  note: "robots.txt asks for a 30s crawl-delay; our once-per-day fetch easily honors that."
+
+- name: St. Augustine Record
+  county: St. Johns
+  status: link_only
+  homepage: https://www.staugustine.com/
+  note: "robots.txt explicitly disallows Claude/ClaudeBot/GPTBot and other AI bots by name, and disallows /feeds/ for every bot (User-agent: *)."
+
+- name: Jacksonville Today
+  county: Duval
+  feed_url: https://jaxtoday.org/feed/
+  status: active
+  note: "This is the outlet historically referred to as 'Jax Today'; the site is jaxtoday.org."
+
+- name: Jacksonville Daily Record
+  county: Duval
+  feed_url: https://www.jaxdailyrecord.com/rss/headlines/all/
+  status: active
+
+- name: First Coast News
+  county: Duval
+  feed_url: https://www.firstcoastnews.com/feeds/syndication/rss/news/local
+  status: active
+  note: "Using the 'local' category feed (not the general news feed) to avoid national/world stories."
+
+- name: Action News Jax
+  county: Duval
+  feed_url: "https://www.actionnewsjax.com/arc/outboundfeeds/rss/category/news/local/?outputType=xml"
+  status: active
+  note: "Using the 'local' category feed (not the general news feed) to avoid national/world stories."
+
+- name: News4Jax
+  county: Duval
+  feed_url: "https://www.news4jax.com/arc/outboundfeeds/rss/category/news/local/?outputType=xml"
+  status: active
+  note: "Using the 'local' category feed (not the general news feed) to avoid national/world stories. robots.txt names specific AI-training bots (ClaudeBot, GPTBot, etc.) as disallowed elsewhere on the file, but its general User-agent: * rule does not block this RSS path, which is a public syndication feed."
+  note: "robots.txt names specific AI-training bots (ClaudeBot, GPTBot, etc.) as disallowed elsewhere on the file, but its general User-agent: * rule does not block this RSS path, which is a public syndication feed."
+
+- name: Florida Times-Union
+  county: Duval
+  status: link_only
+  homepage: https://www.jacksonville.com/
+  note: "Same network/policy as St. Augustine Record: robots.txt disallows Claude/AI bots and /feeds/; feed endpoint also returned HTTP 402."
+
+- name: WJCT News
+  county: Duval
+  feed_url: https://www.wjct.org/feed/
+  status: active
+  note: "Public radio newsroom covering Jacksonville/Duval; suggested addition, not in the original candidate list."
+
+- name: Clay Today
+  county: Clay
+  status: link_only
+  homepage: https://www.claytodayonline.com/
+  note: "The feed endpoint returns HTTP 403 directly from the server regardless of user agent -- actively blocked, not just a missing path."
+
+- name: FlaglerLive
+  county: Flagler
+  feed_url: https://flaglerlive.com/feed/
+  status: active
+
+- name: Palm Coast Observer
+  county: Flagler
+  feed_url: https://www.palmcoastobserver.com/rss/headlines/all/
+  status: active
+  county_filter_keywords: [palm-coast, flagler, bunnell, beverly-beach, marineland]
+  note: "This feed is shared across multiple Observer Media Group markets (e.g. Ormond Beach/Volusia County); keywords above keep only Flagler-relevant items."

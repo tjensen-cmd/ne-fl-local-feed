@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NE Florida Local Feed</title>
+<meta name="description" content="Daily local news headlines for Clay, Duval, St. Johns and Flagler counties.">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --border: #dde1e6;
+    --text: #1b1f24;
+    --text-muted: #5b6370;
+    --accent: #2563eb;
+    --accent-text: #ffffff;
+    --pill-bg: #eef1f5;
+    --pill-text: #3a4048;
+    --shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161a;
+      --surface: #1d2025;
+      --border: #2d3138;
+      --text: #e7e9ec;
+      --text-muted: #9aa2ad;
+      --accent: #5b8cff;
+      --accent-text: #0b1021;
+      --pill-bg: #262a31;
+      --pill-text: #c3c9d1;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a;
+    --surface: #1d2025;
+    --border: #2d3138;
+    --text: #e7e9ec;
+    --text-muted: #9aa2ad;
+    --accent: #5b8cff;
+    --accent-text: #0b1021;
+    --pill-bg: #262a31;
+    --pill-text: #c3c9d1;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 760px;
+    margin: 0 auto 10px;
+  }
+  h1 {
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 700;
+  }
+  h1 small {
+    display: block;
+    font-weight: 400;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  #theme-toggle {
+    border: 1px solid var(--border);
+    background: var(--pill-bg);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .controls {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .county-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .county-btn {
+    border: 1px solid var(--border);
+    background: var(--pill-bg);
+    color: var(--pill-text);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .county-btn.active {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+  }
+  .search-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  #search {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+  .tagged-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 12px 16px 60px;
+  }
+  .day-group { margin-top: 20px; }
+  .day-heading {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin: 0 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  ul.articles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li.article {
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    align-items: baseline;
+  }
+  li.article:last-child { border-bottom: none; }
+  .meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .county-pill {
+    font-size: 0.7rem;
+    background: var(--pill-bg);
+    color: var(--pill-text);
+    border-radius: 999px;
+    padding: 1px 8px;
+  }
+  .headline {
+    font-size: 0.95rem;
+    flex: 1 1 100%;
+  }
+  .empty-state, .loading-state {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 40px 16px;
+    font-size: 0.9rem;
+  }
+  footer {
+    max-width: 760px;
+    margin: 20px auto 40px;
+    padding: 0 16px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-row">
+    <h1>NE Florida Local Feed<small>Clay &middot; Duval &middot; St. Johns &middot; Flagler</small></h1>
+    <button id="theme-toggle" type="button" aria-label="Toggle dark mode">&#9680;</button>
+  </div>
+  <div class="controls">
+    <div class="county-row" id="county-row" role="group" aria-label="Filter by county">
+      <button class="county-btn active" data-county="All">All</button>
+      <button class="county-btn" data-county="St. Johns">St. Johns</button>
+      <button class="county-btn" data-county="Duval">Duval</button>
+      <button class="county-btn" data-county="Clay">Clay</button>
+      <button class="county-btn" data-county="Flagler">Flagler</button>
+    </div>
+    <div class="search-row">
+      <input id="search" type="search" placeholder="Search headlines&hellip;" aria-label="Search headlines">
+      <label class="tagged-toggle">
+        <input type="checkbox" id="tagged-only">
+        Tagged only
+      </label>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="loading-state">Loading headlines&hellip;</div>
+</main>
+<footer id="footer"></footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var state = {
+    articles: [],
+    county: "All",
+    search: "",
+    taggedOnly: false
+  };
+
+  function applyStoredTheme() {
+    try {
+      var saved = localStorage.getItem("nefl-theme");
+      if (saved === "light" || saved === "dark") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    } catch (e) { /* localStorage unavailable; fall back to prefers-color-scheme */ }
+  }
+
+  function toggleTheme() {
+    var current = document.documentElement.getAttribute("data-theme");
+    var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var effectiveCurrent = current || (prefersDark ? "dark" : "light");
+    var next = effectiveCurrent === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("nefl-theme", next); } catch (e) { /* ignore */ }
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function dayKey(date) {
+    return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+  }
+
+  function dayHeading(date) {
+    var today = new Date();
+    var yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    if (dayKey(date) === dayKey(today)) return "Today";
+    if (dayKey(date) === dayKey(yesterday)) return "Yesterday";
+    return date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+  }
+
+  function render() {
+    var main = document.getElementById("main");
+    var filtered = state.articles.filter(function (a) {
+      if (state.county !== "All" && a.county !== state.county) return false;
+      if (state.taggedOnly && (!a.tags || a.tags.length === 0)) return false;
+      if (state.search && a.headline.toLowerCase().indexOf(state.search) === -1) return false;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      main.innerHTML = '<div class="empty-state">No headlines match these filters yet.</div>';
+      return;
+    }
+
+    var groups = [];
+    var groupsByKey = {};
+    filtered.forEach(function (a) {
+      var d = new Date(a.published);
+      var key = dayKey(d);
+      if (!groupsByKey[key]) {
+        var g = { date: d, items: [] };
+        groupsByKey[key] = g;
+        groups.push(g);
+      }
+      groupsByKey[key].items.push(a);
+    });
+
+    var html = groups.map(function (g) {
+      var items = g.items.map(function (a) {
+        var time = new Date(a.published).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+        return (
+          '<li class="article">' +
+            '<span class="meta">' + time + '</span>' +
+            '<span class="meta">&middot; ' + escapeHtml(a.source) + '</span>' +
+            '<span class="county-pill">' + escapeHtml(a.county) + '</span>' +
+            '<a class="headline" href="' + escapeHtml(a.link) + '" target="_blank" rel="noopener noreferrer">' +
+              escapeHtml(a.headline) +
+            '</a>' +
+          '</li>'
+        );
+      }).join("");
+      return (
+        '<div class="day-group">' +
+          '<h2 class="day-heading">' + dayHeading(g.date) + '</h2>' +
+          '<ul class="articles">' + items + '</ul>' +
+        '</div>'
+      );
+    }).join("");
+
+    main.innerHTML = html;
+  }
+
+  function wireControls() {
+    document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+
+    document.getElementById("county-row").addEventListener("click", function (e) {
+      var btn = e.target.closest(".county-btn");
+      if (!btn) return;
+      document.querySelectorAll(".county-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      state.county = btn.getAttribute("data-county");
+      render();
+    });
+
+    document.getElementById("search").addEventListener("input", function (e) {
+      state.search = e.target.value.trim().toLowerCase();
+      render();
+    });
+
+    document.getElementById("tagged-only").addEventListener("change", function (e) {
+      state.taggedOnly = e.target.checked;
+      render();
+    });
+  }
+
+  function loadData() {
+    fetch("./data.json", { cache: "no-store" })
+      .then(function (resp) {
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        return resp.json();
+      })
+      .then(function (data) {
+        state.articles = data.articles || [];
+        state.articles.sort(function (a, b) { return a.published < b.published ? 1 : -1; });
+        document.getElementById("footer").textContent =
+          state.articles.length + " headlines · updated " + new Date(data.generated_at).toLocaleString();
+        render();
+      })
+      .catch(function (err) {
+        document.getElementById("main").innerHTML =
+          '<div class="empty-state">Couldn’t load headlines (' + escapeHtml(err.message) + ').</div>';
+      });
+  }
+
+  applyStoredTheme();
+  wireControls();
+  loadData();
+})();
+</script>
+</body>
+</html>
